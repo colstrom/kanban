@@ -12,4 +12,9 @@ describe "Backlog" do
   it "should have a namespace" do
     @backlog.namespace.should == 'default'
   end
+
+  it "should allow namespace configuration at initialization" do
+    backlog = Kanban::Backlog.new namespace: 'foo'
+    backlog.namespace.should == 'foo'
+  end
 end
