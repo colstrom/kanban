@@ -21,4 +21,8 @@ describe "Backlog" do
   it "should prefix queue keys with the namespace" do
     expect(@backlog.queue).to start_with('default')
   end
+
+  it "should prefix item keys with the namespace" do
+    expect(@backlog.item).to start_with('default')
+  end
 end
