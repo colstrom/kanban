@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Backlog" do
   before do
-    @backlog = Kanban::Backlog.new
+    @backlog = Kanban::Backlog.new backend: Redis.new
   end
 
   it "instantiates without error" do
@@ -14,7 +14,7 @@ describe "Backlog" do
   end
 
   it "should allow namespace configuration at initialization" do
-    backlog = Kanban::Backlog.new namespace: 'foo'
+    backlog = Kanban::Backlog.new namespace: 'foo', backend: nil
     expect(backlog.namespace).to eq 'foo'
   end
 
