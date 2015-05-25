@@ -29,4 +29,8 @@ describe "Backlog" do
   it "should require a backend" do
     expect { Kanban::Backlog.new }.to raise_error(ArgumentError)
   end
+
+  it "should be able to get a task" do
+    expect(@backlog.get(0)).to be_a Hash
+  end
 end
