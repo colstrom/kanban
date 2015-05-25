@@ -8,4 +8,8 @@ describe "Backlog" do
   it "instantiates without error" do
     @backlog.should be_an_instance_of(Kanban::Backlog)
   end
+
+  it "should have a namespace" do
+    @backlog.namespace.should == 'default'
+  end
 end
