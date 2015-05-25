@@ -10,5 +10,9 @@ module Kanban
       @item = "#{@namespace}:#{options.fetch :item, 'task'}"
       @backend = backend
     end
+
+    def get(id)
+      @backend.hgetall "#{@item}:#{id}"
+    end
   end
 end
