@@ -18,5 +18,9 @@ module Kanban
     def next_id
       @backend.incr "#{@queue}:id"
     end
+
+    def todo
+      @backend.lrange "#{@queue}:todo", 0, -1
+    end
   end
 end
