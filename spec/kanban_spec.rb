@@ -45,4 +45,9 @@ describe "Backlog" do
   it "should have a list of tasks waiting to be done" do
     expect(@backlog.todo).to be_an Array
   end
+
+  it "should return the ID of a newly added task" do
+    task = {foo: 'bar'}
+    expect(@backlog.add(task)).to be_a Fixnum
+  end
 end
