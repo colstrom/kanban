@@ -14,5 +14,9 @@ module Kanban
     def get(id)
       @backend.hgetall "#{@item}:#{id}"
     end
+
+    def next_id
+      @backend.incr "#{@queue}:id"
+    end
   end
 end
