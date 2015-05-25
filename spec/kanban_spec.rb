@@ -41,4 +41,8 @@ describe "Backlog" do
   it "should not reuse IDs" do
     expect(@backlog.next_id).to eq (@backlog.next_id - 1)
   end
+
+  it "should have a list of tasks waiting to be done" do
+    expect(@backlog.todo).to be_an Array
+  end
 end
