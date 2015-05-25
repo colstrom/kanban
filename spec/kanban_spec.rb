@@ -25,4 +25,8 @@ describe "Backlog" do
   it "should prefix item keys with the namespace" do
     expect(@backlog.item).to start_with('default')
   end
+
+  it "should require a backend" do
+    expect { Kanban::Backlog.new }.to raise_error(ArgumentError)
+  end
 end
