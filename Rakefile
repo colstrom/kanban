@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "kanban"
   gem.homepage = "http://github.com/colstrom/kanban"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Agile Workflow for your code}
+  gem.description = %Q{Because your code totally needed an Agile Workflow}
   gem.email = "chris@olstrom.com"
   gem.authors = ["Chris Olstrom"]
   # dependencies defined in Gemfile
