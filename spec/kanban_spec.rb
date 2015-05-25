@@ -6,19 +6,19 @@ describe "Backlog" do
   end
 
   it "instantiates without error" do
-    @backlog.should be_an_instance_of(Kanban::Backlog)
+    expect(@backlog).to be_an_instance_of(Kanban::Backlog)
   end
 
   it "should have a namespace" do
-    @backlog.namespace.should == 'default'
+    expect(@backlog.namespace).to eq 'default'
   end
 
   it "should allow namespace configuration at initialization" do
     backlog = Kanban::Backlog.new namespace: 'foo'
-    backlog.namespace.should == 'foo'
+    expect(backlog.namespace).to eq 'foo'
   end
 
-  it "prefix queue keys with the namespace" do
-    @backlog.queue.should start_with? 'default'
+  it "should prefix queue keys with the namespace" do
+    expect(@backlog.queue).to start_with('default')
   end
 end
