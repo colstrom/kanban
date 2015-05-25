@@ -17,4 +17,8 @@ describe "Backlog" do
     backlog = Kanban::Backlog.new namespace: 'foo'
     backlog.namespace.should == 'foo'
   end
+
+  it "prefix queue keys with the namespace" do
+    @backlog.queue.should start_with? 'default'
+  end
 end
