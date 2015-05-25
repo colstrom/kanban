@@ -33,4 +33,12 @@ describe "Backlog" do
   it "should be able to get a task" do
     expect(@backlog.get(0)).to be_a Hash
   end
+
+  it "shoud provide the next ID to assign to a task" do
+    expect(@backlog.next_id).to be_a Fixnum
+  end
+
+  it "should not reuse IDs" do
+    expect(@backlog.next_id).to eq (@backlog.next_id - 1)
+  end
 end
