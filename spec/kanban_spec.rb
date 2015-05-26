@@ -65,4 +65,10 @@ describe "Backlog" do
     task = {'foo' => 'bar'}
     expect(@backlog.get(@backlog.add(task))).to eq task
   end
+
+  it "should add new tasks to the list of tasks waiting to be done" do
+    task = {'foo' => 'bar'}
+    id = @backlog.add(task)
+    expect(@backlog.todo).to include(id)
+  end
 end
