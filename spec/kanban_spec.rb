@@ -52,12 +52,12 @@ describe "Backlog" do
   end
 
   it "should return the ID of a newly added task" do
-    task = {foo: 'bar'}
+    task = {'foo' => 'bar'}
     expect(@backlog.add(task)).to be_a Fixnum
   end
 
   it "should preserve the task details" do
-    task = {foo: 'bar'}
+    task = {'foo' => 'bar'}
     expect(@backlog.get(@backlog.add(task))).to eq task
   end
 end
