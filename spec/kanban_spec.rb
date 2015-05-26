@@ -47,27 +47,27 @@ describe "Backlog" do
   end
 
   it "should throw a TypeError if passed a Hash with Symbol keys" do
-    task = {foo: 'bar'}
+    task = { foo: 'bar' }
     expect { @backlog.add task }.to raise_error(TypeError)
   end
 
   it "should return the ID of a newly added task" do
-    task = {'foo' => 'bar'}
+    task = { 'foo' => 'bar' }
     expect(@backlog.add(task)).to be_a Fixnum
   end
 
   it "should allow Symbol keys with add! method" do
-    task = {foo: 'bar'}
+    task = { foo: 'bar' }
     expect(@backlog.add!(task)).to be_a Fixnum
   end
 
   it "should preserve the task details" do
-    task = {'foo' => 'bar'}
+    task = { 'foo' => 'bar' }
     expect(@backlog.get(@backlog.add(task))).to eq task
   end
 
   it "should add new tasks to the list of tasks waiting to be done" do
-    task = {'foo' => 'bar'}
+    task = { 'foo' => 'bar' }
     id = @backlog.add(task)
     expect(@backlog.todo).to include(id)
   end
