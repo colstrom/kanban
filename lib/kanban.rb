@@ -32,5 +32,10 @@ module Kanban
       @backend.hmset "#{@item}:#{id}", *task.to_a
       id
     end
+
+    def add!(task)
+      safe = task.with_string_keys
+      add(safe)
+    end
   end
 end
