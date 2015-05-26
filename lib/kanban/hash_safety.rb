@@ -1,7 +1,7 @@
 module HashSafety
   refine Hash do
     def keys_contain_symbols?
-      keys.select { |key| key.is_a? Symbol }.size > 0
+      keys.count { |key| key.is_a? Symbol } > 0
     end
 
     def with_string_keys
