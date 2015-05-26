@@ -1,8 +1,10 @@
 require 'simplecov'
 
-module SimpleCov::Configuration
-  def clean_filters
-    @filters = []
+module SimpleCov
+  module Configuration
+    def clean_filters
+      @filters = []
+    end
   end
 end
 
