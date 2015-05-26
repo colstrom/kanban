@@ -23,7 +23,7 @@ module Kanban
     end
 
     def todo
-      @backend.lrange "#{@queue}:todo", 0, -1
+      @backend.lrange("#{@queue}:todo", 0, -1).map(&:to_i)
     end
 
     def add(task)
