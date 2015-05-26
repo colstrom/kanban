@@ -24,6 +24,7 @@ module Kanban
     end
 
     def add(task)
+      fail TypeError if task.keys.select { |key| key.is_a? Symbol }.size > 0
       id = next_id
       @backend.hmset "#{@item}:#{id}", *task.to_a
       id
