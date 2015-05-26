@@ -2,7 +2,7 @@ require_relative '../spec_helper'
 
 using HashSafety
 
-describe "HashSafety" do
+describe 'HashSafety' do
   before do
     @symbol_hash = { foo: 1, bar: 2, baz: 3 }
     @string_hash = { 'foo' => 1, 'bar' => 2, 'baz' => 3 }
