@@ -13,8 +13,8 @@ SimpleCov.configure do
   load_profile 'test_frameworks'
 end
 
-ENV["COVERAGE"] && SimpleCov.start do
-  add_filter "/.rvm/"
+ENV['COVERAGE'] && SimpleCov.start do
+  add_filter '/.rvm/'
 end
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
