@@ -1,7 +1,10 @@
 require 'redis'
+require_relative 'kanban/hash_safety'
 
 module Kanban
   class Backlog
+    using HashSafety
+
     attr_reader :namespace, :queue, :item
 
     def initialize(backend:, **options)
@@ -24,7 +27,7 @@ module Kanban
     end
 
     def add(task)
-      fail TypeError if task.keys.select { |key| key.is_a? Symbol }.size > 0
+      fail TypeError if task.keys_contain_symbols?
       id = next_id
       @backend.hmset "#{@item}:#{id}", *task.to_a
       id
