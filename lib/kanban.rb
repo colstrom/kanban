@@ -22,5 +22,11 @@ module Kanban
     def todo
       @backend.lrange "#{@queue}:todo", 0, -1
     end
+
+    def add(task)
+      id = next_id
+      @backend.hmset "#{@item}:#{id}", *task.to_a
+      id
+    end
   end
 end
