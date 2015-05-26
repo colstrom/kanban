@@ -30,6 +30,7 @@ module Kanban
       fail TypeError if task.keys_contain_symbols?
       id = next_id
       @backend.hmset "#{@item}:#{id}", *task.to_a
+      @backend.lpush "#{@queue}:todo", id
       id
     end
 
