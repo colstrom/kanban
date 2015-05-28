@@ -71,4 +71,8 @@ describe 'Backlog' do
     id = @backlog.add(task)
     expect(@backlog.todo).to include(id)
   end
+
+  it 'should allow a task to be claimed' do
+    expect(@backlog.claim).to be_a Fixnum
+  end
 end
