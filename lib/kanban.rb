@@ -48,5 +48,9 @@ module Kanban
     def claimed?(id)
       @backend.exists "#{@item}:#{id}:claimed"
     end
+
+    def doing
+      @backend.lrange("#{@queue}:doing", 0, -1).map(&:to_i)
+    end
   end
 end
