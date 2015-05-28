@@ -109,4 +109,9 @@ describe 'Backlog' do
     expect(@backlog.claimed?(id)).to be true
     expect(@backlog.claimed?(0)).to be false
   end
+
+  it 'should have a list of tasks being worked on' do
+    id = @backlog.claim
+    expect(@backlog.doing).to include(id)
+  end
 end
