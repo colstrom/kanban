@@ -40,7 +40,9 @@ module Kanban
     end
 
     def claim
-      @backend.brpoplpush("#{@queue}:todo", "#{@queue}:doing").to_i
+      id = @backend.brpoplpush("#{@queue}:todo", "#{@queue}:doing")
+      @backend.set "#{@item}:#{id}:claimed", true
+      id.to_i
     end
   end
 end
