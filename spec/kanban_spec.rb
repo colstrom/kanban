@@ -75,4 +75,10 @@ describe 'Backlog' do
   it 'should allow a task to be claimed' do
     expect(@backlog.claim).to be_a Fixnum
   end
+
+  it 'should track the claim separately from the queue it is in' do
+    id = @backlog.claim
+    redis = Redis.new
+    expect(redis.exists("#{@backlog.item}:#{id}:claimed")).to be true
+  end
 end
