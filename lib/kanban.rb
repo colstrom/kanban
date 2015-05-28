@@ -44,5 +44,9 @@ module Kanban
       @backend.set "#{@item}:#{id}:claimed", true, ex: duration
       id.to_i
     end
+
+    def claimed?(id)
+      @backend.exists "#{@item}:#{id}:claimed"
+    end
   end
 end
