@@ -114,4 +114,9 @@ describe 'Backlog' do
     id = @backlog.claim
     expect(@backlog.doing).to include(id)
   end
+
+  it 'should allow indicating completion of a task only once' do
+    expect(@backlog.complete(1)).to be true
+    expect(@backlog.complete(1)).to be false
+  end
 end
