@@ -119,4 +119,10 @@ describe 'Backlog' do
     expect(@backlog.complete(1)).to be true
     expect(@backlog.complete(1)).to be false
   end
+
+  it 'should check if a task is completed' do
+    expect(@backlog.completed?(2)).to be false
+    @backlog.complete 2
+    expect(@backlog.completed?(2)).to be true
+  end
 end
