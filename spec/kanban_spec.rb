@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'timeout'
 
 describe 'Backlog' do
   before do
@@ -87,5 +88,15 @@ describe 'Backlog' do
     sleep 1.1
     redis = Redis.new
     expect(redis.exists("#{@backlog.item}:#{id}:claimed")).to be false
+  end
+
+  it 'should block if there are no pending tasks' do
+    redis = Redis.new
+    redis.del "#{@backlog.queue}:todo"
+    expect do
+      Timeout.timeout(0.1) do
+        @backlog.claim
+      end
+    end.to raise_error(Timeout::Error)
   end
 end
