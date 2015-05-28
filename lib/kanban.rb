@@ -56,5 +56,9 @@ module Kanban
     def complete(id)
       @backend.setbit("#{@queue}:completed", id, 1).zero?
     end
+
+    def completed?(id)
+      @backend.getbit("#{@queue}:completed", id) == 1
+    end
   end
 end
