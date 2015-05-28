@@ -10,13 +10,8 @@ describe 'Backlog' do
     expect(@backlog).to be_an_instance_of(Kanban::Backlog)
   end
 
-  it 'should have a namespace' do
-    expect(@backlog.namespace).to eq 'kanban:test'
-  end
-
   it 'should allow namespace configuration at initialization' do
-    backlog = Kanban::Backlog.new namespace: 'foo', backend: nil
-    expect(backlog.namespace).to eq 'foo'
+    expect(@backlog.namespace).to eq 'kanban:test'
   end
 
   it 'should prefix queue keys with the namespace' do
