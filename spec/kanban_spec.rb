@@ -6,6 +6,13 @@ describe 'Backlog' do
     @backlog = Kanban::Backlog.new backend: Redis.new, namespace: 'kanban:test'
   end
 
+  after(:all) do
+    redis = Redis.new
+    redis.keys('kanban:test:*').each do |key|
+      redis.del key
+    end
+  end
+
   it 'instantiates without error' do
     expect(@backlog).to be_an_instance_of(Kanban::Backlog)
   end
