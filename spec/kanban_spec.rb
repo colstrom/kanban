@@ -101,4 +101,12 @@ describe 'Backlog' do
       end
     end.to raise_error(Timeout::Error)
   end
+
+  it 'should report if a task is claimed' do
+    task = { 'test' => 'data' }
+    5.times { @backlog.add(task) }
+    id = @backlog.claim
+    expect(@backlog.claimed?(id)).to be true
+    expect(@backlog.claimed?(0)).to be false
+  end
 end
