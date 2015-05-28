@@ -39,9 +39,9 @@ module Kanban
       add(safe)
     end
 
-    def claim
+    def claim(duration: 3)
       id = @backend.brpoplpush("#{@queue}:todo", "#{@queue}:doing")
-      @backend.set "#{@item}:#{id}:claimed", true
+      @backend.set "#{@item}:#{id}:claimed", true, ex: duration
       id.to_i
     end
   end
