@@ -81,4 +81,11 @@ describe 'Backlog' do
     redis = Redis.new
     expect(redis.exists("#{@backlog.item}:#{id}:claimed")).to be true
   end
+
+  it 'should allow claims to expire' do
+    id = @backlog.claim(duration: 1)
+    sleep 1.1
+    redis = Redis.new
+    expect(redis.exists("#{@backlog.item}:#{id}:claimed")).to be false
+  end
 end
