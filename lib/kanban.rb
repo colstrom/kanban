@@ -52,5 +52,9 @@ module Kanban
     def doing
       @backend.lrange("#{@queue}:doing", 0, -1).map(&:to_i)
     end
+
+    def complete(id)
+      @backend.setbit("#{@queue}:completed", id, 1).zero?
+    end
   end
 end
