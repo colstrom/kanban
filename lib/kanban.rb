@@ -38,5 +38,9 @@ module Kanban
       safe = task.with_string_keys
       add(safe)
     end
+
+    def claim
+      @backend.brpoplpush("#{@queue}:todo", "#{@queue}:doing").to_i
+    end
   end
 end
