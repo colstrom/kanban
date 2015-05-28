@@ -3,7 +3,7 @@ require 'timeout'
 
 describe 'Backlog' do
   before do
-    @backlog = Kanban::Backlog.new backend: Redis.new
+    @backlog = Kanban::Backlog.new backend: Redis.new, namespace: 'kanban:test'
   end
 
   it 'instantiates without error' do
@@ -11,7 +11,7 @@ describe 'Backlog' do
   end
 
   it 'should have a namespace' do
-    expect(@backlog.namespace).to eq 'default'
+    expect(@backlog.namespace).to eq 'kanban:test'
   end
 
   it 'should allow namespace configuration at initialization' do
@@ -20,11 +20,11 @@ describe 'Backlog' do
   end
 
   it 'should prefix queue keys with the namespace' do
-    expect(@backlog.queue).to start_with('default')
+    expect(@backlog.queue).to start_with('kanban:test')
   end
 
   it 'should prefix item keys with the namespace' do
-    expect(@backlog.item).to start_with('default')
+    expect(@backlog.item).to start_with('kanban:test')
   end
 
   it 'should require a backend' do
