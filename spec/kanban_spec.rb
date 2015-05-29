@@ -81,15 +81,13 @@ describe 'Backlog' do
 
   it 'should track the claim separately from the queue it is in' do
     id = @backlog.claim
-    redis = Redis.new
-    expect(redis.exists("#{@backlog.item}:#{id}:claimed")).to be true
+    expect(@backlog.claimed?(id)).to be true
   end
 
   it 'should allow claims to expire' do
     id = @backlog.claim(duration: 1)
     sleep 1.1
-    redis = Redis.new
-    expect(redis.exists("#{@backlog.item}:#{id}:claimed")).to be false
+    expect(@backlog.claimed?(id)).to be false
   end
 
   it 'should block if there are no pending tasks' do
