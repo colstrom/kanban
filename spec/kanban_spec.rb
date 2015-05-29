@@ -163,4 +163,11 @@ describe 'Backlog' do
     @backlog.release(id)
     expect(@backlog.claimed?(id)).to be false
   end
+
+  it 'should be able to requeue a task' do
+    id = @backlog.claim
+    expect(@backlog.requeue(id)).to be true
+    expect(@backlog.todo).to include(id)
+    expect(@backlog.doing).to_not include(id)
+  end
 end
