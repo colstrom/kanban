@@ -68,5 +68,9 @@ module Kanban
     def unworkable?(id)
       @backend.getbit("#{@queue}:unworkable", id) == 1
     end
+
+    def done?(id)
+      completed?(id) || unworkable?(id)
+    end
   end
 end
