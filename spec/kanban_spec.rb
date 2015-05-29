@@ -128,4 +128,10 @@ describe 'Backlog' do
     expect(@backlog.unworkable(3)).to be true
     expect(@backlog.unworkable(3)).to be false
   end
+
+  it 'should check if a task is unworkable' do
+    expect(@backlog.unworkable?(4)).to be false
+    @backlog.unworkable 4
+    expect(@backlog.unworkable?(4)).to be true
+  end
 end
