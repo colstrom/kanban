@@ -134,4 +134,12 @@ describe 'Backlog' do
     @backlog.unworkable 4
     expect(@backlog.unworkable?(4)).to be true
   end
+
+  it 'should consider a task that is completed or unworkable to be done' do
+    expect(@backlog.done?(0)).to be false
+    @backlog.complete(5)
+    expect(@backlog.done?(5)).to be true
+    @backlog.unworkable(6)
+    expect(@backlog.done?(6)).to be true
+  end
 end
