@@ -123,4 +123,9 @@ describe 'Backlog' do
     @backlog.complete 2
     expect(@backlog.completed?(2)).to be true
   end
+
+  it 'should allow indicating a task should not be retried' do
+    expect(@backlog.unworkable(3)).to be true
+    expect(@backlog.unworkable(3)).to be false
+  end
 end
