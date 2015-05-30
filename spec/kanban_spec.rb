@@ -156,4 +156,11 @@ describe 'Backlog' do
     expect(@backlog.expire_claim(id)).to be true
     expect(@backlog.claimed?(id)).to be false
   end
+
+  it 'should expire any active claims when a task is released' do
+    id = @backlog.claim
+    expect(@backlog.claimed?(id)).to be true
+    @backlog.release(id)
+    expect(@backlog.claimed?(id)).to be false
+  end
 end
