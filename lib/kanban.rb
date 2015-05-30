@@ -72,5 +72,9 @@ module Kanban
     def done?(id)
       completed?(id) || unworkable?(id)
     end
+
+    def release(id)
+      @backend.lrem("#{@queue}:doing", 0, id) > 0
+    end
   end
 end
