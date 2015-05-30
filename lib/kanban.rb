@@ -31,9 +31,8 @@ module Kanban
       @backend.lrange("#{@queue}:todo", 0, -1).map(&:to_i)
     end
 
-    Contract Hash => Num
+    Contract HashOf[String, Any] => Num
     def add(task)
-      fail TypeError if task.keys_contain_symbols?
       id = next_id
       @backend.hmset "#{@item}:#{id}", *task.to_a
       @backend.lpush "#{@queue}:todo", id
