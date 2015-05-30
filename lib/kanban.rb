@@ -81,5 +81,10 @@ module Kanban
     def expire_claim(id)
       @backend.expire "#{@item}:#{id}:claimed", 0
     end
+
+    def requeue(id)
+      release id
+      @backend.lpush("#{@queue}:todo", id) > 0
+    end
   end
 end
