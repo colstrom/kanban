@@ -51,9 +51,9 @@ describe 'Backlog' do
     expect(@backlog.todo).to be_an Array
   end
 
-  it 'should throw a TypeError if passed a Hash with Symbol keys' do
+  it 'should throw a ParamContractError if passed a Hash with Symbol keys' do
     task = { foo: 'bar' }
-    expect { @backlog.add task }.to raise_error(TypeError)
+    expect { @backlog.add task }.to raise_error(ParamContractError)
   end
 
   it 'should return the ID of a newly added task' do
