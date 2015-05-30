@@ -76,5 +76,9 @@ module Kanban
     def release(id)
       @backend.lrem("#{@queue}:doing", 0, id) > 0
     end
+
+    def expire_claim(id)
+      @backend.expire "#{@item}:#{id}:claimed", 0
+    end
   end
 end
