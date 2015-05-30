@@ -142,4 +142,11 @@ describe 'Backlog' do
     @backlog.unworkable(6)
     expect(@backlog.done?(6)).to be true
   end
+
+  it 'should be able to release a task from being in progress' do
+    id = @backlog.claim
+    expect(@backlog.release(id)).to be true
+    expect(@backlog.release(id)).to be false
+    expect(@backlog.doing).to_not include(id)
+  end
 end
