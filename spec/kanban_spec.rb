@@ -149,4 +149,11 @@ describe 'Backlog' do
     expect(@backlog.release(id)).to be false
     expect(@backlog.doing).to_not include(id)
   end
+
+  it 'should be able to forcibly expire a claim' do
+    expect(@backlog.expire_claim(0)).to be false
+    id = @backlog.claim
+    expect(@backlog.expire_claim(id)).to be true
+    expect(@backlog.claimed?(id)).to be false
+  end
 end
