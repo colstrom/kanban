@@ -1,9 +1,11 @@
 require 'redis'
+require 'contracts'
 require_relative 'kanban/hash_safety'
 
 module Kanban
   class Backlog
     using HashSafety
+    include Contracts
 
     attr_reader :namespace, :queue, :item
 
@@ -14,18 +16,22 @@ module Kanban
       @backend = backend
     end
 
+    Contract Num => Hash
     def get(id)
       @backend.hgetall "#{@item}:#{id}"
     end
 
+    Contract None => Num
     def next_id
       @backend.incr "#{@queue}:id"
     end
 
+    Contract None => ArrayOf[Num]
     def todo
       @backend.lrange("#{@queue}:todo", 0, -1).map(&:to_i)
     end
 
+    Contract Hash => Num
     def add(task)
       fail TypeError if task.keys_contain_symbols?
       id = next_id
@@ -34,54 +40,66 @@ module Kanban
       id
     end
 
+    Contract Hash => Num
     def add!(task)
       safe = task.with_string_keys
       add(safe)
     end
 
+    Contract Maybe[({ duration: Num })] => Num
     def claim(duration: 3)
       id = @backend.brpoplpush("#{@queue}:todo", "#{@queue}:doing")
       @backend.set "#{@item}:#{id}:claimed", true, ex: duration
       id.to_i
     end
 
+    Contract Num => Bool
     def claimed?(id)
       @backend.exists "#{@item}:#{id}:claimed"
     end
 
+    Contract None => ArrayOf[Num]
     def doing
       @backend.lrange("#{@queue}:doing", 0, -1).map(&:to_i)
     end
 
+    Contract Num => Bool
     def complete(id)
       @backend.setbit("#{@queue}:completed", id, 1).zero?
     end
 
+    Contract Num => Bool
     def completed?(id)
       @backend.getbit("#{@queue}:completed", id) == 1
     end
 
+    Contract Num => Bool
     def unworkable(id)
       @backend.setbit("#{@queue}:unworkable", id, 1).zero?
     end
 
+    Contract Num => Bool
     def unworkable?(id)
       @backend.getbit("#{@queue}:unworkable", id) == 1
     end
 
+    Contract Num => Bool
     def done?(id)
       completed?(id) || unworkable?(id)
     end
 
+    Contract Num => Bool
     def release(id)
       expire_claim id
       @backend.lrem("#{@queue}:doing", 0, id) > 0
     end
 
+    Contract Num => Bool
     def expire_claim(id)
       @backend.expire "#{@item}:#{id}:claimed", 0
     end
 
+    Contract Num => Bool
     def requeue(id)
       release id
       @backend.lpush("#{@queue}:todo", id) > 0
