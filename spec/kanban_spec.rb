@@ -17,8 +17,9 @@ describe 'Backlog' do
     end
   end
 
-  it 'instantiates without error' do
-    expect(backlog).to be_an_instance_of(Kanban::Backlog)
+  describe '#new' do
+    subject { backlog }
+    it { is_expected.to be_an_instance_of Kanban::Backlog }
   end
 
   it 'should allow namespace configuration at initialization' do
