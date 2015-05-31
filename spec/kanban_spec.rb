@@ -18,6 +18,10 @@ describe 'Backlog' do
   end
 
   describe '#new' do
+    it 'should require a backend' do
+      expect { Kanban::Backlog.new }.to raise_error(ArgumentError)
+    end
+
     subject { backlog }
     it { is_expected.to be_an_instance_of Kanban::Backlog }
   end
@@ -32,10 +36,6 @@ describe 'Backlog' do
 
   it 'should prefix item keys with the namespace' do
     expect(backlog.item).to start_with('kanban:test')
-  end
-
-  it 'should require a backend' do
-    expect { Kanban::Backlog.new }.to raise_error(ArgumentError)
   end
 
   it 'should be able to get a task' do
