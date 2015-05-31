@@ -52,10 +52,14 @@ describe 'Backlog' do
         it { is_expected.to eq 'testing' }
       end
     end
-  end
 
-  it 'should prefix queue keys with the namespace' do
-    expect(backlog.queue).to start_with('kanban:test')
+    context 'when :queue is "tests"' do
+      let(:backlog) { Kanban::Backlog.new backend: redis, queue: 'tests' }
+      describe '.queue' do
+        subject { backlog.queue }
+        it { is_expected.to eq 'default:tests' }
+      end
+    end
   end
 
   it 'should prefix item keys with the namespace' do
