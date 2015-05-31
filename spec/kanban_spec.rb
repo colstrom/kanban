@@ -24,6 +24,25 @@ describe 'Backlog' do
 
     subject { backlog }
     it { is_expected.to be_an_instance_of Kanban::Backlog }
+
+    context 'when no optional parameters are given' do
+      let(:backlog) { Kanban::Backlog.new backend: redis }
+
+      describe '.namespace' do
+        subject { backlog.namespace }
+        it { is_expected.to eq 'default' }
+      end
+
+      describe '.queue' do
+        subject { backlog.queue }
+        it { is_expected.to eq 'default:tasks' }
+      end
+
+      describe '.item' do
+        subject { backlog.item }
+        it { is_expected.to eq 'default:task' }
+      end
+    end
   end
 
   it 'should allow namespace configuration at initialization' do
