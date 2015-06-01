@@ -84,10 +84,6 @@ describe 'Backlog' do
     end
   end
 
-  it 'shoud provide the next ID to assign to a task' do
-    expect(backlog.next_id).to be_a Fixnum
-  end
-
   it 'should not reuse IDs' do
     expect(backlog.next_id).to eq (backlog.next_id - 1)
   end
