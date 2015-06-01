@@ -92,8 +92,20 @@ describe 'Backlog' do
     end
   end
 
-  it 'should have a list of tasks waiting to be done' do
-    expect(backlog.todo).to be_an Array
+  describe '#todo' do
+    context 'when there are no tasks pending' do
+      before { redis.del "#{backlog.queue}:todo" }
+      subject { backlog.todo }
+      it { is_expected.to be_empty }
+    end
+
+    context 'when there are tasks pending' do
+      let(:task) { ({ 'test' => 'data' }) }
+      let!(:id) { backlog.add task }
+      subject { backlog.todo }
+      it { is_expected.to_not be_empty }
+      it { is_expected.to include id }
+    end
   end
 
   it 'should throw a ParamContractError if passed a Hash with Symbol keys' do
@@ -109,12 +121,6 @@ describe 'Backlog' do
   it 'should allow Symbol keys with add! method' do
     task = { foo: 'bar' }
     expect(backlog.add!(task)).to be_a Fixnum
-  end
-
-  it 'should add new tasks to the list of tasks waiting to be done' do
-    task = { 'foo' => 'bar' }
-    id = backlog.add(task)
-    expect(backlog.todo).to include(id)
   end
 
   it 'should allow a task to be claimed' do
