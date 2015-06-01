@@ -108,14 +108,20 @@ describe 'Backlog' do
     end
   end
 
-  it 'should throw a ParamContractError if passed a Hash with Symbol keys' do
-    task = { foo: 'bar' }
-    expect { backlog.add task }.to raise_error(ParamContractError)
-  end
+  describe '#add' do
+    context 'when task is a hash with symbol keys' do
+      let(:task) { ({ foo: 'bar' }) }
+      it 'should raise a ParamContractError' do
+        expect { backlog.add task }.to raise_error(ParamContractError)
+      end
+    end
 
-  it 'should return the ID of a newly added task' do
-    task = { 'foo' => 'bar' }
-    expect(backlog.add(task)).to be_a Fixnum
+    context 'when task is a hash with string keys' do
+      let(:task) { ({ 'test' => 'data' }) }
+      let!(:id) { backlog.next_id + 1}
+      subject { backlog.add task }
+      it { is_expected.to eq id }
+    end
   end
 
   it 'should allow Symbol keys with add! method' do
