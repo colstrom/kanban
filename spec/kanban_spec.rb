@@ -70,8 +70,18 @@ describe 'Backlog' do
     end
   end
 
-  it 'should be able to get a task' do
-    expect(backlog.get(0)).to be_a Hash
+  describe '#get' do
+    context 'when the task does not exist' do
+      subject { backlog.get 0 }
+      it { is_expected.to be_empty }
+    end
+
+    context 'when the task is {"test"=>"data"}' do
+      let(:task) { ({ 'test' => 'data' }) }
+      let(:id) { backlog.add task }
+      subject { backlog.get id }
+      it { is_expected.to eq task }
+    end
   end
 
   it 'shoud provide the next ID to assign to a task' do
@@ -99,11 +109,6 @@ describe 'Backlog' do
   it 'should allow Symbol keys with add! method' do
     task = { foo: 'bar' }
     expect(backlog.add!(task)).to be_a Fixnum
-  end
-
-  it 'should preserve the task details' do
-    task = { 'foo' => 'bar' }
-    expect(backlog.get(backlog.add(task))).to eq task
   end
 
   it 'should add new tasks to the list of tasks waiting to be done' do
