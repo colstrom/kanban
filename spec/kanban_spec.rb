@@ -84,8 +84,12 @@ describe 'Backlog' do
     end
   end
 
-  it 'should not reuse IDs' do
-    expect(backlog.next_id).to eq (backlog.next_id - 1)
+  describe '#next_id' do
+    describe 'should return incrementing values' do
+      let!(:last_id) { backlog.next_id }
+      subject { backlog.next_id }
+      it { is_expected.to be > last_id }
+    end
   end
 
   it 'should have a list of tasks waiting to be done' do
