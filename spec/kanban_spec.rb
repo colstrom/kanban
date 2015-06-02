@@ -137,15 +137,24 @@ describe 'Backlog' do
     expect(backlog.claim).to be_a Fixnum
   end
 
-  it 'should track the claim separately from the queue it is in' do
-    id = backlog.claim
-    expect(backlog.claimed?(id)).to be true
-  end
+  describe '#claimed?' do
+    context 'when a claim does not exist' do
+      subject { backlog.claimed? 0 }
+      it { is_expected.to be false }
+    end
 
-  it 'should allow claims to expire' do
-    id = backlog.claim(duration: 1)
-    sleep 1.1
-    expect(backlog.claimed?(id)).to be false
+    context 'when a claim exists' do
+      let(:id) { backlog.claim }
+      subject { backlog.claimed? id }
+      it { is_expected.to be true }
+    end
+
+    context 'when a claim has expired' do
+      let!(:id) { backlog.claim duration: 1 }
+      before { sleep 1.1 }
+      subject { backlog.claimed? id }
+      it { is_expected.to be false }
+    end
   end
 
   it 'should block if there are no pending tasks' do
@@ -155,12 +164,6 @@ describe 'Backlog' do
         backlog.claim
       end
     end.to raise_error(Timeout::Error)
-  end
-
-  it 'should report if a task is claimed' do
-    id = backlog.claim
-    expect(backlog.claimed?(id)).to be true
-    expect(backlog.claimed?(0)).to be false
   end
 
   it 'should have a list of tasks being worked on' do
