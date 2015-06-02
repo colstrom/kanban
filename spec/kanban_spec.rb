@@ -158,6 +158,13 @@ describe 'Backlog' do
       subject { backlog.claimed? id }
       it { is_expected.to be false }
     end
+
+    context 'when a task has been released' do
+      let(:id) { backlog.claim }
+      before { backlog.release id }
+      subject { backlog.claimed? id }
+      it { is_expected.to be false }
+    end
   end
 
   describe '#claim' do
@@ -286,13 +293,6 @@ describe 'Backlog' do
       subject { backlog.expire_claim id }
       it { is_expected.to be true }
     end
-  end
-
-  it 'should expire any active claims when a task is released' do
-    id = backlog.claim
-    expect(backlog.claimed?(id)).to be true
-    backlog.release(id)
-    expect(backlog.claimed?(id)).to be false
   end
 
   it 'should be able to requeue a task' do
