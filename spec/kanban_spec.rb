@@ -151,6 +151,13 @@ describe 'Backlog' do
       subject { backlog.claimed? id }
       it { is_expected.to be false }
     end
+
+    context 'when a claim has been forcibly expired' do
+      let(:id) { backlog.claim }
+      before { backlog.expire_claim id }
+      subject { backlog.claimed? id }
+      it { is_expected.to be false }
+    end
   end
 
   describe '#claim' do
@@ -268,11 +275,17 @@ describe 'Backlog' do
     end
   end
 
-  it 'should be able to forcibly expire a claim' do
-    expect(backlog.expire_claim(0)).to be false
-    id = backlog.claim
-    expect(backlog.expire_claim(id)).to be true
-    expect(backlog.claimed?(id)).to be false
+  describe '#expire_claim' do
+    context 'when task was not claimed' do
+      subject { backlog.expire_claim 0 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task was claimed' do
+      let(:id) { backlog.claim }
+      subject { backlog.expire_claim id }
+      it { is_expected.to be true }
+    end
   end
 
   it 'should expire any active claims when a task is released' do
