@@ -176,6 +176,12 @@ describe 'Backlog' do
     let!(:id) { backlog.claim }
     subject { backlog.doing }
     it { is_expected.to include id }
+
+    context 'when a task is released' do
+      before { backlog.release id }
+      subject { backlog.doing }
+      it { is_expected.to_not include id }
+    end
   end
 
   describe '#complete' do
@@ -249,11 +255,17 @@ describe 'Backlog' do
     end
   end
 
-  it 'should be able to release a task from being in progress' do
-    id = backlog.claim
-    expect(backlog.release(id)).to be true
-    expect(backlog.release(id)).to be false
-    expect(backlog.doing).to_not include(id)
+  describe '#release' do
+    context 'when task is claimed' do
+      let(:id) { backlog.claim }
+      subject { backlog.release id }
+      it { is_expected.to be true }
+    end
+
+    context 'when task was not claimed' do
+      subject { backlog.release 0 }
+      it { is_expected.to be false }
+    end
   end
 
   it 'should be able to forcibly expire a claim' do
