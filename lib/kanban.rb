@@ -107,7 +107,6 @@ module Kanban
     Contract None => ArrayOf[Num]
     def groom
       doing.map do |id|
-        # puts "#{id} has active claim" if claimed? id
         next if claimed? id
         if done? id
           id if release id
