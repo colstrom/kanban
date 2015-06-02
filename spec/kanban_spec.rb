@@ -204,9 +204,17 @@ describe 'Backlog' do
     end
   end
 
-  it 'should allow indicating a task should not be retried' do
-    expect(backlog.unworkable(3)).to be true
-    expect(backlog.unworkable(3)).to be false
+  describe '#unworkable' do
+    context 'when task has not been marked unworkable' do
+      subject { backlog.unworkable 1 }
+      it { is_expected.to be true }
+    end
+
+    context 'when task has been marked unworkable' do
+      before { backlog.unworkable 1 }
+      subject { backlog.unworkable 1 }
+      it { is_expected.to be false }
+    end
   end
 
   it 'should check if a task is unworkable' do
