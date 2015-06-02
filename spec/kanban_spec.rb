@@ -124,9 +124,13 @@ describe 'Backlog' do
     end
   end
 
-  it 'should allow Symbol keys with add! method' do
-    task = { foo: 'bar' }
-    expect(backlog.add!(task)).to be_a Fixnum
+  describe '#add!' do
+    context 'when task is a hash with symbol keys' do
+      let(:task) { ({ test: 'data' }) }
+      let!(:id) { backlog.next_id + 1 }
+      subject { backlog.add! task }
+      it { is_expected.to eq id }
+    end
   end
 
   it 'should allow a task to be claimed' do
