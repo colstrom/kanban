@@ -307,4 +307,73 @@ describe 'Backlog' do
       it { is_expected.to be true }
     end
   end
+
+  describe '#groom' do
+    context 'when a task is claimed' do
+      let(:id) { backlog.claim }
+
+      context 'and the claim has expired' do
+        before { backlog.expire_claim id }
+        subject { backlog.groom }
+        it { is_expected.to include id }
+
+        context 'when #groom is called' do
+          before { backlog.groom }
+
+          describe '#todo' do
+            subject { backlog.todo }
+            it { is_expected.to include id }
+          end
+
+          describe '#doing' do
+            subject { backlog.doing }
+            it { is_expected.to_not include id }
+          end
+        end
+      end
+
+      context 'and the task is done' do
+        before { backlog.complete id }
+
+        context 'and the claim has expired' do
+          before { backlog.expire_claim id }
+
+          subject { backlog.groom }
+          it { is_expected.to include id }
+
+          context 'when #groom is called' do
+            before { backlog.groom }
+            describe '#todo' do
+              subject { backlog.todo }
+              it { is_expected.to_not include id }
+            end
+
+            describe '#doing' do
+              subject { backlog.doing }
+              it { is_expected.to_not include id }
+            end
+          end
+        end
+
+        context 'and the claim has not expired' do
+          subject { backlog.groom }
+          it { is_expected.to_not include id }
+
+          context 'when #groom is called' do
+            before { backlog.groom }
+
+            describe '#todo' do
+              subject { backlog.todo }
+              it { is_expected.to_not include id }
+            end
+
+            describe '#doing' do
+              subject { backlog.doing }
+              it { is_expected.to include id }
+            end
+          end
+        end
+      end
+    end
+  end
 end
