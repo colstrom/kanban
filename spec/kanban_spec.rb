@@ -230,12 +230,23 @@ describe 'Backlog' do
     end
   end
 
-  it 'should consider a task that is completed or unworkable to be done' do
-    expect(backlog.done?(0)).to be false
-    backlog.complete(5)
-    expect(backlog.done?(5)).to be true
-    backlog.unworkable(6)
-    expect(backlog.done?(6)).to be true
+  describe '#done?' do
+    context 'when task has not been marked either complete or unworkable' do
+      subject { backlog.done? 0 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task has been marked complete' do
+      before { backlog.complete 5 }
+      subject { backlog.done? 5 }
+      it { is_expected.to be true }
+    end
+
+    context 'when task has been marked unworkable' do
+      before { backlog.unworkable 6 }
+      subject { backlog.done? 6 }
+      it { is_expected.to be true }
+    end
   end
 
   it 'should be able to release a task from being in progress' do
