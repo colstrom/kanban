@@ -217,10 +217,17 @@ describe 'Backlog' do
     end
   end
 
-  it 'should check if a task is unworkable' do
-    expect(backlog.unworkable?(4)).to be false
-    backlog.unworkable 4
-    expect(backlog.unworkable?(4)).to be true
+  describe '#unworkable?' do
+    context 'when task has not been marked unworkable' do
+      subject { backlog.unworkable? 2 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task has been marked unworkable' do
+      before { backlog.unworkable 3 }
+      subject { backlog.unworkable? 3 }
+      it { is_expected.to be true }
+    end
   end
 
   it 'should consider a task that is completed or unworkable to be done' do
