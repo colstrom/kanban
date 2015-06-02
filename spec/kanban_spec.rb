@@ -106,6 +106,13 @@ describe 'Backlog' do
       it { is_expected.to_not be_empty }
       it { is_expected.to include id }
     end
+
+    context 'when a task is requeued' do
+      let(:id) { backlog.claim }
+      before { backlog.requeue id }
+      subject { backlog.todo }
+      it { is_expected.to include id }
+    end
   end
 
   describe '#add' do
@@ -193,6 +200,12 @@ describe 'Backlog' do
 
     context 'when a task is released' do
       before { backlog.release id }
+      subject { backlog.doing }
+      it { is_expected.to_not include id }
+    end
+
+    context 'when a task is requeued' do
+      before { backlog.requeue id }
       subject { backlog.doing }
       it { is_expected.to_not include id }
     end
@@ -293,12 +306,5 @@ describe 'Backlog' do
       subject { backlog.expire_claim id }
       it { is_expected.to be true }
     end
-  end
-
-  it 'should be able to requeue a task' do
-    id = backlog.claim
-    expect(backlog.requeue(id)).to be true
-    expect(backlog.todo).to include(id)
-    expect(backlog.doing).to_not include(id)
   end
 end
