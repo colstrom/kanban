@@ -103,5 +103,18 @@ module Kanban
       release id
       @backend.lpush("#{@queue}:todo", id) > 0
     end
+
+    Contract None => ArrayOf[Num]
+    def groom
+      doing.map do |id|
+        # puts "#{id} has active claim" if claimed? id
+        next if claimed? id
+        if done? id
+          id if release id
+        else
+          id if requeue id
+        end
+      end.compact
+    end
   end
 end
