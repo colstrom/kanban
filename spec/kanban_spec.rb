@@ -2,10 +2,12 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'timeout'
 
 describe 'Backlog' do
+  let(:redis) { Redis.new }
+  let(:backlog) { Kanban::Backlog.new backend: redis, namespace: 'kanban:test' }
+
   before do
-    @backlog = Kanban::Backlog.new backend: Redis.new, namespace: 'kanban:test'
     task = { 'test' => 'data' }
-    5.times { @backlog.add(task) }
+    5.times { backlog.add(task) }
   end
 
   after(:all) do
@@ -15,159 +17,294 @@ describe 'Backlog' do
     end
   end
 
-  it 'instantiates without error' do
-    expect(@backlog).to be_an_instance_of(Kanban::Backlog)
-  end
+  describe '#new' do
+    it 'should require a backend' do
+      expect { Kanban::Backlog.new }.to raise_error(ArgumentError)
+    end
 
-  it 'should allow namespace configuration at initialization' do
-    expect(@backlog.namespace).to eq 'kanban:test'
-  end
+    subject { backlog }
+    it { is_expected.to be_an_instance_of Kanban::Backlog }
 
-  it 'should prefix queue keys with the namespace' do
-    expect(@backlog.queue).to start_with('kanban:test')
-  end
+    context 'when no optional parameters are given' do
+      let(:backlog) { Kanban::Backlog.new backend: redis }
 
-  it 'should prefix item keys with the namespace' do
-    expect(@backlog.item).to start_with('kanban:test')
-  end
-
-  it 'should require a backend' do
-    expect { Kanban::Backlog.new }.to raise_error(ArgumentError)
-  end
-
-  it 'should be able to get a task' do
-    expect(@backlog.get(0)).to be_a Hash
-  end
-
-  it 'shoud provide the next ID to assign to a task' do
-    expect(@backlog.next_id).to be_a Fixnum
-  end
-
-  it 'should not reuse IDs' do
-    expect(@backlog.next_id).to eq (@backlog.next_id - 1)
-  end
-
-  it 'should have a list of tasks waiting to be done' do
-    expect(@backlog.todo).to be_an Array
-  end
-
-  it 'should throw a ParamContractError if passed a Hash with Symbol keys' do
-    task = { foo: 'bar' }
-    expect { @backlog.add task }.to raise_error(ParamContractError)
-  end
-
-  it 'should return the ID of a newly added task' do
-    task = { 'foo' => 'bar' }
-    expect(@backlog.add(task)).to be_a Fixnum
-  end
-
-  it 'should allow Symbol keys with add! method' do
-    task = { foo: 'bar' }
-    expect(@backlog.add!(task)).to be_a Fixnum
-  end
-
-  it 'should preserve the task details' do
-    task = { 'foo' => 'bar' }
-    expect(@backlog.get(@backlog.add(task))).to eq task
-  end
-
-  it 'should add new tasks to the list of tasks waiting to be done' do
-    task = { 'foo' => 'bar' }
-    id = @backlog.add(task)
-    expect(@backlog.todo).to include(id)
-  end
-
-  it 'should allow a task to be claimed' do
-    expect(@backlog.claim).to be_a Fixnum
-  end
-
-  it 'should track the claim separately from the queue it is in' do
-    id = @backlog.claim
-    expect(@backlog.claimed?(id)).to be true
-  end
-
-  it 'should allow claims to expire' do
-    id = @backlog.claim(duration: 1)
-    sleep 1.1
-    expect(@backlog.claimed?(id)).to be false
-  end
-
-  it 'should block if there are no pending tasks' do
-    redis = Redis.new
-    redis.del "#{@backlog.queue}:todo"
-    expect do
-      Timeout.timeout(0.1) do
-        @backlog.claim
+      describe '.namespace' do
+        subject { backlog.namespace }
+        it { is_expected.to eq 'default' }
       end
-    end.to raise_error(Timeout::Error)
+
+      describe '.queue' do
+        subject { backlog.queue }
+        it { is_expected.to eq 'default:tasks' }
+      end
+
+      describe '.item' do
+        subject { backlog.item }
+        it { is_expected.to eq 'default:task' }
+      end
+    end
+
+    context 'when :namespace is "testing"' do
+      let(:backlog) { Kanban::Backlog.new backend: redis, namespace: 'testing' }
+
+      describe '.namespace' do
+        subject { backlog.namespace }
+        it { is_expected.to eq 'testing' }
+      end
+    end
+
+    context 'when :queue is "tests"' do
+      let(:backlog) { Kanban::Backlog.new backend: redis, queue: 'tests' }
+      describe '.queue' do
+        subject { backlog.queue }
+        it { is_expected.to eq 'default:tests' }
+      end
+    end
+
+    context 'when :item is "test"' do
+      let(:backlog) { Kanban::Backlog.new backend: redis, item: 'test' }
+      describe '.item' do
+        subject { backlog.item }
+        it { is_expected.to eq 'default:test' }
+      end
+    end
   end
 
-  it 'should report if a task is claimed' do
-    id = @backlog.claim
-    expect(@backlog.claimed?(id)).to be true
-    expect(@backlog.claimed?(0)).to be false
+  describe '#get' do
+    context 'when the task does not exist' do
+      subject { backlog.get 0 }
+      it { is_expected.to be_empty }
+    end
+
+    context 'when the task is {"test"=>"data"}' do
+      let(:task) { ({ 'test' => 'data' }) }
+      let(:id) { backlog.add task }
+      subject { backlog.get id }
+      it { is_expected.to eq task }
+    end
   end
 
-  it 'should have a list of tasks being worked on' do
-    id = @backlog.claim
-    expect(@backlog.doing).to include(id)
+  describe '#next_id' do
+    describe 'should return incrementing values' do
+      let!(:last_id) { backlog.next_id }
+      subject { backlog.next_id }
+      it { is_expected.to be > last_id }
+    end
   end
 
-  it 'should allow indicating completion of a task only once' do
-    expect(@backlog.complete(1)).to be true
-    expect(@backlog.complete(1)).to be false
+  describe '#todo' do
+    context 'when there are no tasks pending' do
+      before { redis.del "#{backlog.queue}:todo" }
+      subject { backlog.todo }
+      it { is_expected.to be_empty }
+    end
+
+    context 'when there are tasks pending' do
+      let(:task) { ({ 'test' => 'data' }) }
+      let!(:id) { backlog.add task }
+      subject { backlog.todo }
+      it { is_expected.to_not be_empty }
+      it { is_expected.to include id }
+    end
+
+    context 'when a task is requeued' do
+      let(:id) { backlog.claim }
+      before { backlog.requeue id }
+      subject { backlog.todo }
+      it { is_expected.to include id }
+    end
   end
 
-  it 'should check if a task is completed' do
-    expect(@backlog.completed?(2)).to be false
-    @backlog.complete 2
-    expect(@backlog.completed?(2)).to be true
+  describe '#add' do
+    context 'when task is a hash with symbol keys' do
+      let(:task) { ({ foo: 'bar' }) }
+      it 'should raise a ParamContractError' do
+        expect { backlog.add task }.to raise_error(ParamContractError)
+      end
+    end
+
+    context 'when task is a hash with string keys' do
+      let(:task) { ({ 'test' => 'data' }) }
+      let!(:id) { backlog.next_id + 1}
+      subject { backlog.add task }
+      it { is_expected.to eq id }
+    end
   end
 
-  it 'should allow indicating a task should not be retried' do
-    expect(@backlog.unworkable(3)).to be true
-    expect(@backlog.unworkable(3)).to be false
+  describe '#add!' do
+    context 'when task is a hash with symbol keys' do
+      let(:task) { ({ test: 'data' }) }
+      let!(:id) { backlog.next_id + 1 }
+      subject { backlog.add! task }
+      it { is_expected.to eq id }
+    end
   end
 
-  it 'should check if a task is unworkable' do
-    expect(@backlog.unworkable?(4)).to be false
-    @backlog.unworkable 4
-    expect(@backlog.unworkable?(4)).to be true
+  describe '#claimed?' do
+    context 'when a claim does not exist' do
+      subject { backlog.claimed? 0 }
+      it { is_expected.to be false }
+    end
+
+    context 'when a claim exists' do
+      let(:id) { backlog.claim }
+      subject { backlog.claimed? id }
+      it { is_expected.to be true }
+    end
+
+    context 'when a claim has expired' do
+      let!(:id) { backlog.claim duration: 1 }
+      before { sleep 1.1 }
+      subject { backlog.claimed? id }
+      it { is_expected.to be false }
+    end
+
+    context 'when a claim has been forcibly expired' do
+      let(:id) { backlog.claim }
+      before { backlog.expire_claim id }
+      subject { backlog.claimed? id }
+      it { is_expected.to be false }
+    end
+
+    context 'when a task has been released' do
+      let(:id) { backlog.claim }
+      before { backlog.release id }
+      subject { backlog.claimed? id }
+      it { is_expected.to be false }
+    end
   end
 
-  it 'should consider a task that is completed or unworkable to be done' do
-    expect(@backlog.done?(0)).to be false
-    @backlog.complete(5)
-    expect(@backlog.done?(5)).to be true
-    @backlog.unworkable(6)
-    expect(@backlog.done?(6)).to be true
+  describe '#claim' do
+    context 'when there are no pending tasks' do
+      before { redis.del "#{backlog.queue}:todo" }
+      it 'should block' do
+        expect do
+          Timeout.timeout(0.1) do
+            backlog.claim
+          end
+        end.to raise_error(Timeout::Error)
+      end
+    end
+
+    context 'when there are pending tasks' do
+      before { backlog.add ({ 'test' => 'data' }) }
+      subject { backlog.claim }
+      it { is_expected.to be_a Fixnum }
+    end
   end
 
-  it 'should be able to release a task from being in progress' do
-    id = @backlog.claim
-    expect(@backlog.release(id)).to be true
-    expect(@backlog.release(id)).to be false
-    expect(@backlog.doing).to_not include(id)
+  describe '#doing' do
+    let!(:id) { backlog.claim }
+    subject { backlog.doing }
+    it { is_expected.to include id }
+
+    context 'when a task is released' do
+      before { backlog.release id }
+      subject { backlog.doing }
+      it { is_expected.to_not include id }
+    end
+
+    context 'when a task is requeued' do
+      before { backlog.requeue id }
+      subject { backlog.doing }
+      it { is_expected.to_not include id }
+    end
   end
 
-  it 'should be able to forcibly expire a claim' do
-    expect(@backlog.expire_claim(0)).to be false
-    id = @backlog.claim
-    expect(@backlog.expire_claim(id)).to be true
-    expect(@backlog.claimed?(id)).to be false
+  describe '#complete' do
+    context 'when task has not been marked complete' do
+      subject { backlog.complete 1 }
+      it { is_expected.to be true }
+    end
+
+    context 'when task has been marked complete' do
+      before { backlog.complete 1 }
+      subject { backlog.complete 1 }
+      it { is_expected.to be false }
+    end
   end
 
-  it 'should expire any active claims when a task is released' do
-    id = @backlog.claim
-    expect(@backlog.claimed?(id)).to be true
-    @backlog.release(id)
-    expect(@backlog.claimed?(id)).to be false
+  describe '#completed?' do
+    context 'when task has not been marked complete' do
+      subject { backlog.completed? 2 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task has been marked complete' do
+      before { backlog.complete 3 }
+      subject { backlog.completed? 3 }
+      it { is_expected.to be true }
+    end
   end
 
-  it 'should be able to requeue a task' do
-    id = @backlog.claim
-    expect(@backlog.requeue(id)).to be true
-    expect(@backlog.todo).to include(id)
-    expect(@backlog.doing).to_not include(id)
+  describe '#unworkable' do
+    context 'when task has not been marked unworkable' do
+      subject { backlog.unworkable 1 }
+      it { is_expected.to be true }
+    end
+
+    context 'when task has been marked unworkable' do
+      before { backlog.unworkable 1 }
+      subject { backlog.unworkable 1 }
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#unworkable?' do
+    context 'when task has not been marked unworkable' do
+      subject { backlog.unworkable? 2 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task has been marked unworkable' do
+      before { backlog.unworkable 3 }
+      subject { backlog.unworkable? 3 }
+      it { is_expected.to be true }
+    end
+  end
+
+  describe '#done?' do
+    context 'when task has not been marked either complete or unworkable' do
+      subject { backlog.done? 0 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task has been marked complete' do
+      before { backlog.complete 5 }
+      subject { backlog.done? 5 }
+      it { is_expected.to be true }
+    end
+
+    context 'when task has been marked unworkable' do
+      before { backlog.unworkable 6 }
+      subject { backlog.done? 6 }
+      it { is_expected.to be true }
+    end
+  end
+
+  describe '#release' do
+    context 'when task is claimed' do
+      let(:id) { backlog.claim }
+      subject { backlog.release id }
+      it { is_expected.to be true }
+    end
+
+    context 'when task was not claimed' do
+      subject { backlog.release 0 }
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#expire_claim' do
+    context 'when task was not claimed' do
+      subject { backlog.expire_claim 0 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task was claimed' do
+      let(:id) { backlog.claim }
+      subject { backlog.expire_claim id }
+      it { is_expected.to be true }
+    end
   end
 end
