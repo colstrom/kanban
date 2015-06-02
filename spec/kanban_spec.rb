@@ -172,9 +172,10 @@ describe 'Backlog' do
     end
   end
 
-  it 'should have a list of tasks being worked on' do
-    id = backlog.claim
-    expect(backlog.doing).to include(id)
+  describe '#doing' do
+    let!(:id) { backlog.claim }
+    subject { backlog.doing }
+    it { is_expected.to include id }
   end
 
   it 'should allow indicating completion of a task only once' do
