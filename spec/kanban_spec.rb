@@ -191,10 +191,17 @@ describe 'Backlog' do
     end
   end
 
-  it 'should check if a task is completed' do
-    expect(backlog.completed?(2)).to be false
-    backlog.complete 2
-    expect(backlog.completed?(2)).to be true
+  describe '#completed?' do
+    context 'when task has not been marked complete' do
+      subject { backlog.completed? 2 }
+      it { is_expected.to be false }
+    end
+
+    context 'when task has been marked complete' do
+      before { backlog.complete 3 }
+      subject { backlog.completed? 3 }
+      it { is_expected.to be true }
+    end
   end
 
   it 'should allow indicating a task should not be retried' do
