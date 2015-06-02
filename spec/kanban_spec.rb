@@ -178,9 +178,17 @@ describe 'Backlog' do
     it { is_expected.to include id }
   end
 
-  it 'should allow indicating completion of a task only once' do
-    expect(backlog.complete(1)).to be true
-    expect(backlog.complete(1)).to be false
+  describe '#complete' do
+    context 'when task has not been marked complete' do
+      subject { backlog.complete 1 }
+      it { is_expected.to be true }
+    end
+
+    context 'when task has been marked complete' do
+      before { backlog.complete 1 }
+      subject { backlog.complete 1 }
+      it { is_expected.to be false }
+    end
   end
 
   it 'should check if a task is completed' do
