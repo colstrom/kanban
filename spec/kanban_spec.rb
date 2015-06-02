@@ -133,10 +133,6 @@ describe 'Backlog' do
     end
   end
 
-  it 'should allow a task to be claimed' do
-    expect(backlog.claim).to be_a Fixnum
-  end
-
   describe '#claimed?' do
     context 'when a claim does not exist' do
       subject { backlog.claimed? 0 }
@@ -157,13 +153,23 @@ describe 'Backlog' do
     end
   end
 
-  it 'should block if there are no pending tasks' do
-    redis.del "#{backlog.queue}:todo"
-    expect do
-      Timeout.timeout(0.1) do
-        backlog.claim
+  describe '#claim' do
+    context 'when there are no pending tasks' do
+      before { redis.del "#{backlog.queue}:todo" }
+      it 'should block' do
+        expect do
+          Timeout.timeout(0.1) do
+            backlog.claim
+          end
+        end.to raise_error(Timeout::Error)
       end
-    end.to raise_error(Timeout::Error)
+    end
+
+    context 'when there are pending tasks' do
+      before { backlog.add ({ 'test' => 'data' }) }
+      subject { backlog.claim }
+      it { is_expected.to be_a Fixnum }
+    end
   end
 
   it 'should have a list of tasks being worked on' do
