@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'redis'
-gem 'contracts'
+gem 'redis', '~> 0.12'
+gem 'contracts', '~> 3.2'
 
 group :development do
   gem 'rspec', '~> 3.2'
