@@ -1,0 +1,47 @@
+#+TITLE: kanban - Agile Workflow for Ruby
+
+* Description
+
+  Kanban provides tools to model task flow in distributed apps.
+
+** Create a Backlog
+
+   #+BEGIN_SRC ruby
+     require 'redis'
+     require 'kanban'
+
+     backlog = Kanban::Backlog.new backend: Redis.new
+   #+END_SRC
+
+** Add some tasks to your shiny new Backlog
+
+   #+BEGIN_SRC ruby
+     task = { 'foo' => 'bar' }
+     5.times { backlog.add task }
+   #+END_SRC
+
+** (Elsewhere) Stake a claim on a task from the backlog
+
+   #+BEGIN_SRC ruby
+     task_id = backlog.claim  # Will block until there is a task, if the backlog is empty or all tasks are being worked.
+     details = backlog.get task_id
+   #+END_SRC
+
+** Mark a task as complete (or unworkable)
+
+   #+BEGIN_SRC ruby
+     backlog.complete task_id
+     # or backlog.unworkable task_id
+     backlog.done? task_id  # => true
+   #+END_SRC
+
+* Notes
+  - Claims expire after awhile (default 3 seconds), and become eligible to
+  be worked by something else.
+* License
+
+  ~kanban~ is available under the [[https://tldrlegal.com/license/mit-license][MIT License]]. See ~LICENSE.txt~ for the full text.
+
+* Contributors
+
+  - [[https://colstrom.github.io/][Chris Olstrom]] | [[mailto:chris@olstrom.com][e-mail]] | [[https://twitter.com/ChrisOlstrom][Twitter]]
