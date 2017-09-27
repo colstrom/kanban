@@ -1,5 +1,5 @@
-require 'redis'
 require 'contracts'
+require 'redis'
 require_relative 'kanban/hash_safety'
 
 module Kanban
