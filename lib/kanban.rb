@@ -5,7 +5,8 @@ require_relative 'kanban/hash_safety'
 module Kanban
   class Backlog
     using HashSafety
-    include Contracts
+    include ::Contracts::Core
+    include ::Contracts::Builtin
 
     attr_reader :namespace, :queue, :item
 
