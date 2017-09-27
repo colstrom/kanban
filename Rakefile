@@ -1,3 +1,4 @@
+#! /usr/bin/env rake
 # encoding: utf-8
 
 require 'rubygems'
@@ -10,20 +11,6 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 require 'rake'
-
-require 'jeweler'
-Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
-  gem.name = "kanban"
-  gem.homepage = "http://github.com/colstrom/kanban"
-  gem.license = "MIT"
-  gem.summary = %Q{Agile Workflow for your code}
-  gem.description = %Q{Because your code totally needed an Agile Workflow}
-  gem.email = "chris@olstrom.com"
-  gem.authors = ["Chris Olstrom"]
-  # dependencies defined in Gemfile
-end
-Jeweler::RubygemsDotOrgTasks.new
 
 require 'rspec/core'
 require 'rspec/core/rake_task'
